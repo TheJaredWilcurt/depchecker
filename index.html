@@ -43,15 +43,17 @@
             <th>Type</th>
             <th>Latest</th>
             <th class="text-center">Behind by</th>
+            <th>Breaking</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="package in packages">
-            <td><a @click="openLink('https://www.npmjs.com/package/' + package.name)">{{ package.name }}</a></td>
+            <td><a class="text-primary" @click="openLink('https://www.npmjs.com/package/' + package.name)">{{ package.name }}</a></td>
             <td class="text-right">{{ package.version }}</td>
             <td class="text-small">{{ package.type }}</td>
             <td>{{ package.latest }}</td>
             <td class="text-center">{{ package.distance }}</td>
+            <td>{{ package.broken }}</td>
           </tr>
         </tbody>
       </table>
