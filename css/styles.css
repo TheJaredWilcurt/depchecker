@@ -9,6 +9,7 @@ textarea.form-control {
     font-size: 80%;
 }
 a {
+    font-weight: bold;
     cursor: pointer;
 }
 .thumbsup {
