@@ -1,0 +1,23 @@
+{
+  "name": "depcheck",
+  "version": "1.0.0",
+  "description": "Check how out of date the dependencies are on your project",
+  "main": "index.html",
+  "scripts": {
+    "start": "nw ."
+  },
+  "keywords": [
+    "npm",
+    "dependencies"
+  ],
+  "window" :{
+    "icon": "favicon.png",
+    "height": 500,
+    "width": 500
+  },
+  "author": "The Jared Wilcurt",
+  "license": "MIT",
+  "devDependencies": {
+    "nw": "^0.25.4-sdk"
+  }
+}

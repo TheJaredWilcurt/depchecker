@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dep Checker</title>
+    <link rel="stylesheet"    href="css/bootstrap.css">
+    <link rel="stylesheet"    href="css/sandstone.css">
+    <link rel="stylesheet"    href="css/styles.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/ico">
+  </head>
+  <body>
+    <div id="app" class="container">
+      <h1>Check dependencies for updates</h1>
+      <p>Paste your <code>package.json</code> here:</p>
+      <div class="row">
+        <div class="col-md-12">
+          <textarea class="form-control" v-model="packagejson" @change="validatePackage" @keyup="validatePackage"></textarea>
+        </div>
+      </div>
+
+      <div class="row space-above" v-if="packages.length > 0 && !updatesChecked">
+        <div class="col-md-12">
+          <button class="btn btn-primary" @click="checkAllForUpdates">Check versions</button>
+        </div>
+      </div>
+
+      <h2 v-if="breakingChanges">
+        <small>There have been </small><strong>{{ breakingChanges }}</strong><small> breaking changes.</small>
+      </h2>
+      <h2 v-if="totalDistance">
+        <small>Your project is </small><strong>{{ totalDistance }}</strong><small> versions behind being completely up-to-date.</small>
+      </h2>
+
+      <h2 v-if="breakingChanges === 0 && totalDistance === 0">
+        <small>Lookin' good!</small> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 77.7 100" class="thumbsup"><path fill="#93C54B" d="M0 59.6s6.8-1.7 12.8-9.8c2.4-3.5 4.6-9.8 6.2-15.4 1.4-3.2 1-4.6 7.8-7.3 4.3-2.4 11.1-7.5 14.1-15.5.8-3.7-1.2-11.7 6.2-11.6 7.8 0 7.3 7.1 7.8 11.8-.6 8.5-7.2 16.7-7.2 16.7l-5.8 9.4s2.1-.1 8.9.3c5.4.3 11-.7 18.6 1.6 17.1 8.6 2.6 14.6 2.6 14.6 9.4 6.8 1 14 1 14 5.9 10.7-3.7 12.9-3.2 13 1.9.3 8.3 7.1-2.7 13 0 0-12.1 5.3-18.7 5.3-4.3.7-16.7.9-26.1-3-11.1-1.9-8.8.6-18 2.3l-4.3-39.4z"/></svg>
+      </h2>
+
+      <h3 v-if="packages.length > 0"><strong>Dependencies</strong></h3>
+      <table class="table table-striped" v-if="packages.length > 0">
+        <thead>
+          <tr>
+            <th>Package</th>
+            <th class="text-right">Version</th>
+            <th>Type</th>
+            <th>Latest</th>
+            <th class="text-center">Behind by</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="package in packages">
+            <td><a @click="openLink('https://www.npmjs.com/package/' + package.name)">{{ package.name }}</a></td>
+            <td class="text-right">{{ package.version }}</td>
+            <td class="text-small">{{ package.type }}</td>
+            <td>{{ package.latest }}</td>
+            <td class="text-center">{{ package.distance }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Drag and drop folders into the app -->
+    <div id="drag-in-folders">
+      <div class="bordered-box">
+        Drag and drop folders here <!-- LOCALIZE-->
+      </div>
+    </div>
+
+    <script src="js/jquery.js"          type="text/javascript"></script>
+    <script src="js/vue.js"             type="text/javascript"></script>
+    <script src="js/main.js"            type="text/javascript"></script>
+    <script src="js/drag-in-folders.js" type="text/javascript"></script>
+  </body>
+</html>
