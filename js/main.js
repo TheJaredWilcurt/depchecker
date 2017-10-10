@@ -49,7 +49,8 @@ var app = new Vue({
                         'version': version,
                         'type': type,
                         'latest': '',
-                        'distance': null
+                        'distance': null,
+                        'broken': null
                     };
                     this.packages.push(packageData);
                 }
@@ -62,14 +63,15 @@ var app = new Vue({
                 window.open(url, '_blank');
             }
         },
-        coundBreakingChanges: function (version, latest) {
-            version = version.split('.')[0];
+        countBreakingChanges: function (package, latest) {
+            var version = package.version.split('.')[0];
             version = parseInt(version);
 
             latest = latest.split('.')[0];
             latest = parseInt(latest);
 
             var diff = latest - version;
+            package.broken = diff;
             this.breakingChanges = this.breakingChanges + diff;
         },
         countHowFarBehind: function (package, versions) {
@@ -112,7 +114,7 @@ var app = new Vue({
                 var latest = response['dist-tags'].latest;
                 package.latest = latest;
                 this.countHowFarBehind(package, response.versions);
-                this.coundBreakingChanges(package.version, latest);
+                this.countBreakingChanges(package, latest);
                 this.updateTotalDistance();
             }.bind(this));
         }
