@@ -23,11 +23,14 @@
         </div>
       </div>
 
-      <h2 v-if="breakingChanges">
+      <h2 v-if="breakingChanges == 1">
+        <small>There has been </small><strong>1</strong><small> breaking change.</small>
+      </h2>
+      <h2 v-if="breakingChanges > 1">
         <small>There have been </small><strong>{{ breakingChanges }}</strong><small> breaking changes.</small>
       </h2>
       <h2 v-if="totalDistance">
-        <small>Your project is </small><strong>{{ totalDistance }}</strong><small> versions behind being completely up-to-date.</small>
+        <small>Your project is </small><strong>{{ totalDistance }}</strong><small> version<span v-if="totalDistance > 1">s</span> behind being completely up-to-date.</small>
       </h2>
 
       <h2 v-if="breakingChanges === 0 && totalDistance === 0">
