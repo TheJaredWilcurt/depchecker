@@ -10,7 +10,7 @@
     "npm",
     "dependencies"
   ],
-  "window" :{
+  "window": {
     "icon": "favicon.png",
     "height": 500,
     "width": 500

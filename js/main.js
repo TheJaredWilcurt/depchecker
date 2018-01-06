@@ -63,17 +63,6 @@ var app = new Vue({
                 window.open(url, '_blank');
             }
         },
-        countBreakingChanges: function (package, latest) {
-            var version = package.version.split('.')[0];
-            version = parseInt(version);
-
-            latest = latest.split('.')[0];
-            latest = parseInt(latest);
-
-            var diff = latest - version;
-            package.broken = diff;
-            this.breakingChanges = this.breakingChanges + diff;
-        },
         countHowFarBehind: function (package, versions) {
             var existingVersion = package.version;
             var matchFound = false;
@@ -89,6 +78,24 @@ var app = new Vue({
             }
 
             package.distance = distance;
+        },
+        countBreakingChanges: function (package, latest) {
+            var version = package.version.split('.')[0];
+            version = parseInt(version);
+
+            latest = latest.split('.')[0];
+            latest = parseInt(latest);
+
+            var diff = latest - version;
+            package.broken = diff;
+            this.breakingChanges = this.breakingChanges + diff;
+        },
+        checkIfLatest: function (package, latest) {
+            var existingVersion = package.version;
+            if (latest === existingVersion) {
+                package.broken = 0;
+                package.distance = 0;
+            }
         },
         updateTotalDistance: function () {
             var total = 0;
@@ -115,6 +122,7 @@ var app = new Vue({
                 package.latest = latest;
                 this.countHowFarBehind(package, response.versions);
                 this.countBreakingChanges(package, latest);
+                this.checkIfLatest(package, latest);
                 this.updateTotalDistance();
             }.bind(this));
         }
