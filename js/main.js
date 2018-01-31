@@ -1,4 +1,7 @@
 console.clear();
+
+// nw.Window.get().showDevTools();
+
 var app = new Vue({
     el: '#app',
     data: {
@@ -125,6 +128,14 @@ var app = new Vue({
                 this.checkIfLatest(package, latest);
                 this.updateTotalDistance();
             }.bind(this));
+        },
+        packageClass: function (package) {
+            if (package.broken) {
+                return 'danger';
+            }
+            if (package.distance) {
+                return 'warning';
+            }
         }
     }
 });
