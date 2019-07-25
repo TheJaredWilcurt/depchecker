@@ -2,10 +2,6 @@
 
 * * *
 
-This tool is deprecated, as you can just use `npm outdated` now.
-
-* * *
-
 ### Check how far behind your dependencies are in your project.
 
 <p align="center"><img src="screenshot.png" alt="Screenshot of DepChecker running"></p>
