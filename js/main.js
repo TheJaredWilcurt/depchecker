@@ -1,8 +1,9 @@
 console.clear();
+const semver = require('semver');
 
 // nw.Window.get().showDevTools();
 
-var app = new Vue({
+const app = new Vue({
     el: '#app',
     data: {
         updatesChecked: false,
@@ -20,7 +21,7 @@ var app = new Vue({
         validatePackage: function () {
             this.reset();
 
-            var packageJSON = '';
+            let packageJSON = '';
             try {
                 packageJSON = JSON.parse(this.packagejson);
             } catch (err) {
@@ -40,14 +41,14 @@ var app = new Vue({
             }
         },
         cleanDependencies: function (dependencies, type) {
-            for (var key in dependencies) {
+            for (let key in dependencies) {
                 if (dependencies[key].startsWith('http') || dependencies[key].startsWith('git')) {
                     delete dependencies[key];
                 } else {
-                    var version = dependencies[key];
+                    let version = dependencies[key];
                     version = version.replace('~', '');
                     version = version.replace('^', '');
-                    var packageData = {
+                    let packageData = {
                         'name': key,
                         'version': version,
                         'type': type,
@@ -67,12 +68,12 @@ var app = new Vue({
             }
         },
         countHowFarBehind: function (package, versions) {
-            var existingVersion = package.version;
-            var matchFound = false;
-            var distance = 0;
+            let existingVersion = package.version;
+            let matchFound = false;
+            let distance = 0;
 
-            for (var key in versions) {
-                var version = versions[key].version;
+            for (let key in versions) {
+                let version = versions[key].version;
                 if (matchFound) {
                     distance = distance + 1;
                 } else if (existingVersion === version) {
@@ -83,25 +84,26 @@ var app = new Vue({
             package.distance = distance;
         },
         countBreakingChanges: function (package, latest) {
-            var version = package.version.split('.')[0];
-            version = parseInt(version);
+            // '1.2.3' => 1
+            let originalMajor = semver.major(package.version)
+            // '4.5.6' => 4
+            let latestMajor = semver.major(latest);
 
-            latest = latest.split('.')[0];
-            latest = parseInt(latest);
-
-            var diff = latest - version;
+            // 4 - 1 = 3
+            let diff = latestMajor - originalMajor;
             package.broken = diff;
+
             this.breakingChanges = this.breakingChanges + diff;
         },
         checkIfLatest: function (package, latest) {
-            var existingVersion = package.version;
+            let existingVersion = package.version;
             if (latest === existingVersion) {
                 package.broken = 0;
                 package.distance = 0;
             }
         },
         updateTotalDistance: function () {
-            var total = 0;
+            let total = 0;
             this.packages.forEach(function (package) {
                 if (typeof(package.distance) === 'number') {
                     total = total + package.distance;
@@ -116,18 +118,18 @@ var app = new Vue({
             this.updatesChecked = true;
         },
         checkForUpdates: function (package) {
-            $.ajax({
-                'type': 'GET',
-                'url': 'http://registry.npmjs.org/' + package.name,
-            })
-            .done(function (response) {
-                var latest = response['dist-tags'].latest;
-                package.latest = latest;
-                this.countHowFarBehind(package, response.versions);
-                this.countBreakingChanges(package, latest);
-                this.checkIfLatest(package, latest);
-                this.updateTotalDistance();
-            }.bind(this));
+            axios.get('http://registry.npmjs.org/' + package.name)
+                .then((response) => {
+                    let latest = response['dist-tags'].latest;
+                    package.latest = latest;
+                    this.countHowFarBehind(package, response.versions);
+                    this.countBreakingChanges(package, latest);
+                    this.checkIfLatest(package, latest);
+                    this.updateTotalDistance();
+                })
+                .catch((err) => {
+                    package.networkError = err;
+                });
         },
         packageClass: function (package) {
             if (package.broken) {
