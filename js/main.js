@@ -5,7 +5,11 @@ const semver = require('semver');
 
 const app = new Vue({
     el: '#app',
+    components: {
+      'projects-list': httpVueLoader('js/projects-list.vue')
+    },
     data: {
+        projects: [],
         updatesChecked: false,
         packages: [],
         packagejson: '',
@@ -49,12 +53,13 @@ const app = new Vue({
                     version = version.replace('~', '');
                     version = version.replace('^', '');
                     let packageData = {
-                        'name': key,
-                        'version': version,
-                        'type': type,
-                        'latest': '',
-                        'distance': null,
-                        'broken': null
+                        selected: false,
+                        name: key,
+                        version: version,
+                        type: type,
+                        latest: '',
+                        distance: null,
+                        broken: null
                     };
                     this.packages.push(packageData);
                 }
@@ -120,9 +125,9 @@ const app = new Vue({
         checkForUpdates: function (package) {
             axios.get('http://registry.npmjs.org/' + package.name)
                 .then((response) => {
-                    let latest = response['dist-tags'].latest;
+                    let latest = response.data['dist-tags'].latest;
                     package.latest = latest;
-                    this.countHowFarBehind(package, response.versions);
+                    this.countHowFarBehind(package, response.data.versions);
                     this.countBreakingChanges(package, latest);
                     this.checkIfLatest(package, latest);
                     this.updateTotalDistance();
