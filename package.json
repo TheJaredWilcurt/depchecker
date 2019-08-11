@@ -13,7 +13,9 @@
   "window": {
     "icon": "favicon.png",
     "height": 500,
-    "width": 500
+    "width": 500,
+    "min_width": 300,
+    "min_height": 400
   },
   "author": "The Jared Wilcurt",
   "license": "MIT",

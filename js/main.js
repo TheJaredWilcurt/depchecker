@@ -1,5 +1,8 @@
 console.clear();
+const fs = require('fs');
+const path = require('path');
 const semver = require('semver');
+const settingsFile = path.join(nw.App.dataPath, 'dep-checker-settings.json');
 
 // nw.Window.get().showDevTools();
 
@@ -10,6 +13,9 @@ const app = new Vue({
     },
     data: {
         projects: [],
+        errorLoading: null,
+        errorSaving: null,
+
         updatesChecked: false,
         packages: [],
         packagejson: '',
@@ -17,6 +23,43 @@ const app = new Vue({
         breakingChanges: null
     },
     methods: {
+        addProject: function (project) {
+            this.projects.push(project);
+            this.saveSettings();
+        },
+        removeProject: function (index) {
+            this.projects.splice(index, 1);
+            this.saveSettings();
+        },
+        projectClicked: function (index) {
+            console.log(this.projects[index]);
+        },
+        saveSettings: function () {
+            try {
+                fs.writeFileSync(settingsFile, JSON.stringify(this.settings, null, 2));
+                this.errorSaving = null;
+            } catch (err) {
+                this.errorSaving = err;
+            }
+        },
+        loadSettings: function () {
+            var settings = '';
+            try {
+                settings = fs.readFileSync(settingsFile);
+                settings = JSON.parse(settings);
+            } catch (err) {
+                this.errorLoading = err;
+            }
+
+            if (settings && settings.projects) {
+                this.projects = settings.projects;
+            }
+        },
+
+
+
+
+
         reset: function () {
             this.updatesChecked = false;
             this.totalDistance = null;
@@ -144,5 +187,16 @@ const app = new Vue({
                 return 'warning';
             }
         }
+    },
+    computed: {
+        settings: function () {
+            return {
+                projects: this.projects
+            }
+        }
+    },
+    created: function () {
+        this.loadSettings();
     }
 });
+

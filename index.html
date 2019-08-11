@@ -11,7 +11,13 @@
 
       <button class="btn btn-primary pull-right" @click="window.nw.Window.get().reload()">refresh</button>
 
-      <projects-list></projects-list>
+      <projects-list
+        :projects="projects"
+        @add-project="addProject"
+        @remove-project="removeProject"
+        @project-clicked="projectClicked"
+      >
+      </projects-list>
 
       <h1>Results</h1>
 
