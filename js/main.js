@@ -7,14 +7,16 @@ var app = new Vue({
     data: {
         updatesChecked: false,
         packages: [],
+        packagesToSkip: [],
         packagejson: '',
-        totalDistance: null,
-        breakingChanges: null
+        showGood: false,
+        showBroke: true,
+        showBehind: true,
+        showSkipped: false
     },
     methods: {
         reset: function () {
             this.updatesChecked = false;
-            this.totalDistance = null;
             this.breakingChanges = null;
         },
         validatePackage: function () {
@@ -31,6 +33,11 @@ var app = new Vue({
         },
         cleanPackageJSON: function (packageJSON) {
             this.packages = [];
+            this.packagesToSkip = [];
+
+            if (packageJSON && packageJSON.ManifestComments) {
+                this.findPackagesToSkip(packageJSON.ManifestComments);
+            }
 
             if (packageJSON && packageJSON.dependencies) {
                 this.cleanDependencies(packageJSON.dependencies, 'dependencies');
@@ -39,21 +46,32 @@ var app = new Vue({
                 this.cleanDependencies(packageJSON.devDependencies, 'devDependencies');
             }
         },
+        findPackagesToSkip: function (ManifestComments) {
+            ManifestComments.forEach((comment) => {
+                if (comment.startsWith('Pinned ')) {
+                    var package = comment.split(' ')[1];
+                    this.packagesToSkip.push(package);
+                }
+            });
+        },
         cleanDependencies: function (dependencies, type) {
             for (var key in dependencies) {
-                if (dependencies[key].startsWith('http') || dependencies[key].startsWith('git')) {
+                if (
+                    dependencies[key].startsWith('http') ||
+                    dependencies[key].startsWith('git')
+                ) {
                     delete dependencies[key];
                 } else {
                     var version = dependencies[key];
                     version = version.replace('~', '');
                     version = version.replace('^', '');
                     var packageData = {
-                        'name': key,
-                        'version': version,
-                        'type': type,
-                        'latest': '',
-                        'distance': null,
-                        'broken': null
+                        name: key,
+                        version: version,
+                        type: type,
+                        latest: '',
+                        distance: null,
+                        broken: null
                     };
                     this.packages.push(packageData);
                 }
@@ -91,7 +109,6 @@ var app = new Vue({
 
             var diff = latest - version;
             package.broken = diff;
-            this.breakingChanges = this.breakingChanges + diff;
         },
         checkIfLatest: function (package, latest) {
             var existingVersion = package.version;
@@ -99,15 +116,6 @@ var app = new Vue({
                 package.broken = 0;
                 package.distance = 0;
             }
-        },
-        updateTotalDistance: function () {
-            var total = 0;
-            this.packages.forEach(function (package) {
-                if (typeof(package.distance) === 'number') {
-                    total = total + package.distance;
-                }
-            });
-            this.totalDistance = total;
         },
         checkAllForUpdates: function () {
             this.packages.forEach(function (package) {
@@ -126,7 +134,6 @@ var app = new Vue({
                 this.countHowFarBehind(package, response.versions);
                 this.countBreakingChanges(package, latest);
                 this.checkIfLatest(package, latest);
-                this.updateTotalDistance();
             }.bind(this));
         },
         packageClass: function (package) {
@@ -136,6 +143,39 @@ var app = new Vue({
             if (package.distance) {
                 return 'warning';
             }
+        }
+    },
+    computed: {
+        filteredPackages: function () {
+            var packages = [];
+            this.packages.forEach((package) => {
+                var skipped = this.packagesToSkip.includes(package.name);
+                if (
+                    (package.distance === 0 && this.showGood) ||
+                    (package.broken && this.showBroke && !skipped) ||
+                    (package.distance && this.showBehind && this.showBroke && !skipped) ||
+                    (skipped && this.showSkipped)
+                ) {
+                    packages.push(package);
+                }
+            });
+            return packages;
+        },
+        totalDistance: function () {
+            var total = 0;
+            this.filteredPackages.forEach(function (package) {
+                if (typeof(package.distance) === 'number') {
+                    total = total + package.distance;
+                }
+            });
+            return total;
+        },
+        totalBreakingChanges: function () {
+            var total = 0;
+            this.filteredPackages.forEach(function (package) {
+                total = total + package.broken;
+            });
+            return total;
         }
     }
 });
