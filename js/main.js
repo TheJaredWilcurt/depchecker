@@ -17,7 +17,21 @@ var app = new Vue({
     methods: {
         reset: function () {
             this.updatesChecked = false;
-            this.breakingChanges = null;
+        },
+        setCommonFile: function (evt) {
+            var file = evt.target.files[0].path;
+            window.localStorage.commonFile = file;
+            this.loadCommonFile(file);
+        },
+        loadCommonFile: function () {
+            var file = window.localStorage && window.localStorage.commonFile;
+            if (file && window.nw) {
+                this.packagejson = String(window.nw.require('fs').readFileSync(file));
+                this.validatePackage();
+            }
+            if (this.packages.length) {
+                this.checkAllForUpdates();
+            }
         },
         validatePackage: function () {
             this.reset();
@@ -151,10 +165,10 @@ var app = new Vue({
             this.packages.forEach((package) => {
                 var skipped = this.packagesToSkip.includes(package.name);
                 if (
-                    (package.distance === 0 && this.showGood) ||
-                    (package.broken && this.showBroke && !skipped) ||
-                    (package.distance && this.showBehind && this.showBroke && !skipped) ||
-                    (skipped && this.showSkipped)
+                    (this.showGood && package.distance === 0) ||
+                    (this.showBroke && package.broken && !skipped) ||
+                    (this.showBehind && package.distance && !package.broken && !skipped) ||
+                    (this.showSkipped && skipped)
                 ) {
                     packages.push(package);
                 }
@@ -177,5 +191,8 @@ var app = new Vue({
             });
             return total;
         }
+    },
+    created: function () {
+        this.loadCommonFile();
     }
 });
