@@ -126,7 +126,7 @@ var app = new Vue({
         },
         checkIfLatest: function (package, latest) {
             var existingVersion = package.version;
-            if (latest === existingVersion) {
+            if (latest === existingVersion || isNaN(existingVersion)) {
                 package.broken = 0;
                 package.distance = 0;
             }
