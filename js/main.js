@@ -29,9 +29,8 @@ var app = new Vue({
                 this.packagejson = String(window.nw.require('fs').readFileSync(file));
                 this.validatePackage();
             }
-            if (this.packages.length) {
-                this.checkAllForUpdates();
-            }
+
+            this.checkAllForUpdates();
         },
         validatePackage: function () {
             this.reset();
@@ -126,21 +125,29 @@ var app = new Vue({
         },
         checkIfLatest: function (package, latest) {
             var existingVersion = package.version;
-            if (latest === existingVersion || isNaN(existingVersion)) {
+
+            var allowed = ['.', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            var sdkAlphaBeta = existingVersion.split('').filter(function (character) {
+              return !allowed.includes(character);
+            });
+
+            if (latest === existingVersion || sdkAlphaBeta.length) {
                 package.broken = 0;
                 package.distance = 0;
             }
         },
         checkAllForUpdates: function () {
-            this.packages.forEach(function (package) {
-                this.checkForUpdates(package);
-            }.bind(this));
+            if (this.packages.length) {
+                this.packages.forEach(function (package) {
+                    this.checkForUpdates(package);
+                }.bind(this));
+            }
             this.updatesChecked = true;
         },
         checkForUpdates: function (package) {
             $.ajax({
-                'type': 'GET',
-                'url': 'http://registry.npmjs.org/' + package.name,
+                type: 'GET',
+                url: 'http://registry.npmjs.org/' + package.name,
             })
             .done(function (response) {
                 var latest = response['dist-tags'].latest;
