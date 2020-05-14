@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>Dep Checker</title>
+    <meta charset="utf-8">
     <link rel="stylesheet"    href="css/bootstrap.css">
     <link rel="stylesheet"    href="css/sandstone.css">
     <link rel="stylesheet"    href="css/styles.css">
@@ -97,7 +98,12 @@
           </tr>
         </tbody>
       </table>
+
+      <p><strong>Markdown:</strong></p>
+      <input class="form-control" :value="'Dependencies are out of date - ' + totalBreakingChanges + ' breaking, ' + totalDistance + ' versions behind'">
+      <textarea class="form-group form-control">{{ markdown }}</textarea>
     </div>
+
 
     <!-- Drag and drop folders into the app -->
     <div id="drag-in-folders">

@@ -197,6 +197,99 @@ var app = new Vue({
                 total = total + package.broken;
             });
             return total;
+        },
+        markdown: function () {
+            if (
+                this.packages.lenght &&
+                this.totalBreakingChanges === 0 &&
+                this.totalDistance === 0 &&
+                (
+                    this.showGood ||
+                    this.showBroke ||
+                    this.showBehind ||
+                    this.showSkipped
+                )
+            ) {
+                return '# All dependencies are up to date. Lookin\' good 👍';
+            }
+
+            let breakingChanges = '';
+            let behindBy = '';
+            let skipped = '';
+            let table = '';
+
+            if (this.totalBreakingChanges == 1) {
+                breakingChanges = '# There has been **[1](# \'1\')** breaking change.';
+            } else if (this.totalBreakingChanges) {
+                breakingChanges = '# There have been **[' + this.totalBreakingChanges + '](# \'' + this.totalBreakingChanges + '\')** breaking changes.';
+            }
+
+            if (this.totalDistance == 1) {
+                behindBy = '## Your project is **[1](# \'1\')** version behind being completely up-to-date.';
+            } else if (this.totalDistance) {
+                behindBy = '## Your project is **[' + this.totalDistance + '](# \'' + this.totalDistance + '\')** versions behind being completely up-to-date.';
+            }
+
+            if (this.packagesToSkip.length === 1) {
+                skipped = '### 1 package skipped, per ManifestComments.';
+            } else if (this.packagesToSkip.length) {
+                skipped = '### ' + this.packagesToSkip.length + ' packages skipped, per ManifestComments.';
+            }
+
+            if (this.packages.length) {
+                let header = [
+                    'Status',
+                    'Package',
+                    'Version',
+                    'Type',
+                    'Latest',
+                    'Behind by',
+                    'Breaking',
+                ];
+                let align = new Array(header.length).fill(':--');
+                let rows = [];
+
+                this.filteredPackages.forEach(function (package) {
+                    let status = '&#10004;'; // ✔
+                    if (package.broken) {
+                        status = '&#128165;'; // 💥
+                    } else if (package.distance) {
+                        status = '&#9888;'; // ⚠
+                    }
+
+                    let packageLink = '[' + package.name + '](https://www.npmjs.com/package/' + package.name +')';
+
+                    let row = [
+                        status,
+                        packageLink,
+                        package.version,
+                        package.type,
+                        package.latest,
+                        package.distance,
+                        package.broken
+                    ].join(' | ');
+
+                    rows.push(row);
+                });
+
+                table = [
+                    header.join(' | '),
+                    align.join(' | '),
+                    rows.join('\n')
+                ].join('\n');
+            }
+
+            let credits = 'Auto-Generated with [DepChecker](https://github.com/TheJaredWilcurt/depchecker).'
+
+            let markdown = [
+                breakingChanges,
+                behindBy,
+                skipped,
+                table,
+                credits
+            ].join('\n\n');
+
+            return markdown;
         }
     },
     created: function () {
