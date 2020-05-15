@@ -234,10 +234,12 @@ var app = new Vue({
                 behindBy = '## Your project is **[' + this.totalDistance + '](# \'' + this.totalDistance + '\')** versions behind being completely up-to-date.';
             }
 
-            if (this.packagesToSkip.length === 1) {
-                skipped = '### 1 package skipped, per ManifestComments.';
-            } else if (this.packagesToSkip.length) {
-                skipped = '### ' + this.packagesToSkip.length + ' packages skipped, per ManifestComments.';
+            if (!this.showSkipped) {
+                if (this.packagesToSkip.length === 1) {
+                    skipped = '### 1 package skipped, per ManifestComments.';
+                } else if (this.packagesToSkip.length) {
+                    skipped = '### ' + this.packagesToSkip.length + ' packages skipped, per ManifestComments.';
+                }
             }
 
             if (this.packages.length) {
@@ -276,11 +278,13 @@ var app = new Vue({
                     rows.push(row);
                 });
 
-                table = [
-                    header.join(' | '),
-                    align.join(' | '),
-                    rows.join('\n')
-                ].join('\n');
+                if (rows.length) {
+                    table = [
+                        header.join(' | '),
+                        align.join(' | '),
+                        rows.join('\n')
+                    ].join('\n');
+                }
             }
 
             let credits = 'Auto-Generated with [DepChecker](https://github.com/TheJaredWilcurt/depchecker).'
@@ -293,7 +297,7 @@ var app = new Vue({
                 credits
             ].join('\n\n');
 
-            return markdown;
+            return markdown.trim();
         }
     },
     created: function () {
