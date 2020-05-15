@@ -61,7 +61,11 @@ var app = new Vue({
         },
         findPackagesToSkip: function (ManifestComments) {
             ManifestComments.forEach((comment) => {
-                if (comment.startsWith('Pinned ')) {
+                if (
+                    comment &&
+                    typeof(comment) === 'string' &&
+                    comment.startsWith('Pinned ')
+                ) {
                     var package = comment.split(' ')[1];
                     this.packagesToSkip.push(package);
                 }
