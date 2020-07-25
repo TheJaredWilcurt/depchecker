@@ -1,11 +1,5 @@
 # DepChecker
 
-* * *
-
-This tool is deprecated, as you can just use `npm outdated` now.
-
-* * *
-
 ### Check how far behind your dependencies are in your project.
 
 <p align="center"><img src="screenshot.png" alt="Screenshot of DepChecker running"></p>
@@ -27,3 +21,9 @@ This was just for a quick thing I needed, I'm not going to be updating this, but
 * * *
 
 Made with Vue.js and NW.js.
+
+* * *
+
+**Alternatives:**
+
+* You can use the built in `npm outdated`
