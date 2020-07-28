@@ -1,5 +1,6 @@
 console.clear();
 
+Vue.config.devtools = true;
 // nw.Window.get().showDevTools();
 
 var app = new Vue({
@@ -12,25 +13,81 @@ var app = new Vue({
         showGood: false,
         showBroke: true,
         showBehind: true,
-        showSkipped: false
+        showSkipped: false,
+        saved: false
     },
     methods: {
         reset: function () {
             this.updatesChecked = false;
         },
-        setCommonFile: function (evt) {
+        getCommonFileLocation: function () {
+            return (
+                window.nw &&
+                window.localStorage &&
+                window.localStorage.commonFile
+            );
+        },
+        setCommonFileLocation: function (evt) {
             var file = evt.target.files[0].path;
             window.localStorage.commonFile = file;
-            this.loadCommonFile(file);
+            this.loadCommonFile();
         },
         loadCommonFile: function () {
-            var file = window.localStorage && window.localStorage.commonFile;
-            if (file && window.nw) {
-                this.packagejson = String(window.nw.require('fs').readFileSync(file));
+            let commonFile = this.getCommonFileLocation();
+            if (commonFile) {
+                this.packagejson = String(window.nw.require('fs').readFileSync(commonFile));
                 this.validatePackage();
             }
 
             this.checkAllForUpdates();
+        },
+        applyToManifest: function () {
+            let error = false;
+            let commonFile = this.getCommonFileLocation();
+            let indentation = 2;
+            let originalPackageJSON = '{}';
+            let data = '';
+
+            try {
+                originalPackageJSON = String(window.nw.require('fs').readFileSync(commonFile));
+
+                // {\n    "name":
+                if (originalPackageJSON[5] === ' ') {
+                    indentation = 4;
+                }
+
+                originalPackageJSON = JSON.parse(originalPackageJSON);
+            } catch (err) {
+                alert('Failed to read or JSON.parse original package.json');
+                console.log(err);
+                error = true;
+            }
+
+            if (!error) {
+                this.selectedFilteredPackages.forEach(function (package) {
+                    originalPackageJSON[package.type][package.name] = '^' + package.latest;
+                });
+
+                data = JSON.stringify(originalPackageJSON, null, indentation);
+            }
+
+            try {
+                if (!error && data) {
+                    window.nw.require('fs').writeFileSync(commonFile, data + '\n');
+                }
+            } catch (err) {
+                alert('Error saving file');
+                console.log(err);
+                error = true;
+            }
+
+            if (!error) {
+                this.saved = true;
+                setTimeout(() => {
+                    this.saved = false;
+                    this.loadCommonFile();
+                }, 4000);
+            }
         },
         validatePackage: function () {
             this.reset();
@@ -88,7 +145,8 @@ var app = new Vue({
                         type: type,
                         latest: '',
                         distance: null,
-                        broken: null
+                        broken: null,
+                        selected: false
                     };
                     this.packages.push(packageData);
                 }
@@ -168,6 +226,33 @@ var app = new Vue({
             if (package.distance) {
                 return 'warning';
             }
+        },
+        togglePackageSelected: function (index, evt) {
+            let packageName = this.filteredPackages[index].name;
+            let found = this.packages.findIndex(function (package) {
+                return package.name === packageName;
+            });
+            this.packages[found].selected = evt.target.checked;
+        },
+        toggleAllVisible: function (evt) {
+            let selected = evt.target.checked;
+            this.packages.forEach((package) => {
+                let good = package.distance === 0;
+                let skipped = this.packagesToSkip.includes(package.name);
+
+                if (
+                    (this.showGood && good) ||
+                    (this.showBroke && package.broken && !skipped) ||
+                    (this.showBehind && package.distance && !package.broken && !skipped) ||
+                    (this.showSkipped && skipped)
+                ) {
+                    if (good || skipped) {
+                        package.selected = false;
+                    } else {
+                        package.selected = selected;
+                    }
+                }
+            });
         }
     },
     computed: {
@@ -185,6 +270,11 @@ var app = new Vue({
                 }
             });
             return packages;
+        },
+        selectedFilteredPackages: function () {
+            return this.filteredPackages.filter(function (package) {
+                return package.selected;
+            });
         },
         totalDistance: function () {
             var total = 0;

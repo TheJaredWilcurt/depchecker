@@ -1,3 +1,11 @@
+[v-cloak] {
+    display: none;
+}
+
+input[type="file"] {
+    display: inline-block;
+}
+
 textarea.form-control {
   height: 200px;
   font-family: monospace;
@@ -15,6 +23,18 @@ a {
 .thumbsup {
     height: 23px;
     vertical-align: -3px;
+}
+
+.checkmark {
+    padding: 0px;
+    margin: 0px 0px 0px 5px;
+    font-size: 23px;
+    opacity: 0.0;
+    transition: 1s ease all;
+    vertical-align: middle;
+}
+.saved {
+    opacity: 1.0
 }
 
 #drag-in-folders {

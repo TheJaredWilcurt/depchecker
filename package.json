@@ -6,19 +6,21 @@
   "scripts": {
     "start": "nw ."
   },
+  "devDependencies": {
+    "nw": "sdk",
+    "nw-vue-devtools-prebuilt": "^0.0.10"
+  },
+  "chromium-args": "--load-extension='./node_modules/nw-vue-devtools-prebuilt/extension'",
   "keywords": [
     "npm",
     "dependencies"
   ],
   "window": {
     "icon": "favicon.png",
-    "height": 500,
-    "width": 500
+    "height": 660,
+    "width": 840
   },
   "author": "The Jared Wilcurt",
   "license": "MIT",
-  "devDependencies": {
-    "nw": "sdk"
-  },
   "repository": "https://github.com/TheJaredWilcurt/depchecker"
 }
