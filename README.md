@@ -1,5 +1,7 @@
 # DepChecker
 
+Currently in beta, but it's useful now, and will be done soon.
+
 ### Check how far behind your dependencies are in your project.
 
 <p align="center"><img src="screenshot.png" alt="Screenshot of DepChecker running"></p>
