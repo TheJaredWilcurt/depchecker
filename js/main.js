@@ -292,6 +292,25 @@ var app = new Vue({
             });
             return total;
         },
+        markdownTitle: function () {
+          let versions = 'versions,';
+          let changes = 'breaking changes.';
+
+          if (this.totalDistance == 1) {
+            versions = 'version,';
+          }
+          if (this.totalBreakingChanges == 1) {
+            changes = 'breaking change.'
+          }
+
+          return [
+            'Dependencies behind by',
+            this.totalDistance,
+            versions,
+            this.totalBreakingChanges,
+            changes
+          ].join(' ')
+        },
         markdown: function () {
             if (
                 this.packages.lenght &&
