@@ -22,5 +22,8 @@
   },
   "author": "The Jared Wilcurt",
   "license": "MIT",
-  "repository": "https://github.com/TheJaredWilcurt/depchecker"
+  "repository": "https://github.com/TheJaredWilcurt/depchecker",
+  "dependencies": {
+    "findinnw": "^1.1.3"
+  }
 }

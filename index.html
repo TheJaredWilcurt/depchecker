@@ -20,6 +20,7 @@
           refresh
         </button>
       </h1>
+      <p>{{ getCommonFileLocation() }}</p>
       <p v-if="window.nw">
         Select your <code>package.json</code>:
         <input type="file" @change="setCommonFileLocation" @input="setCommonFileLocation">
@@ -177,5 +178,7 @@
     <script src="js/vue.js"             type="text/javascript"></script>
     <script src="js/main.js"            type="text/javascript"></script>
     <script src="js/drag-in-folders.js" type="text/javascript"></script>
+    <script src="node_modules/findinnw/dist/find-in-nw.js"></script>
+    <script>findInNw.initialize();</script>
   </body>
 </html>
