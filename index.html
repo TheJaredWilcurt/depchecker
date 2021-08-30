@@ -25,6 +25,9 @@
         Select your <code>package.json</code>:
         <input type="file" @change="setCommonFileLocation" @input="setCommonFileLocation">
       </p>
+      <div>
+        {{ getCommonFileLocation() }}
+      </div>
 
       <!--
 
