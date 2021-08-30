@@ -20,14 +20,11 @@
           refresh
         </button>
       </h1>
-      <p>{{ getCommonFileLocation() }}</p>
       <p v-if="window.nw">
         Select your <code>package.json</code>:
         <input type="file" @change="setCommonFileLocation" @input="setCommonFileLocation">
       </p>
-      <div>
-        {{ getCommonFileLocation() }}
-      </div>
+      <p>{{ getCommonFileLocation() }}</p>
 
       <!--
 
