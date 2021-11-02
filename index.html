@@ -26,22 +26,6 @@
       </p>
       <p>{{ getCommonFileLocation() }}</p>
 
-      <!--
-
-        TODO:
-
-        Remove the paste box.
-        Show a list of recent package.json's
-
-      -->
-
-      <p v-show="false">Paste your <code>package.json</code> here:</p>
-      <div class="row" v-show="false">
-        <div class="col-md-12">
-          <textarea class="form-control" v-model="packagejson" @change="validatePackage" @keyup="validatePackage"></textarea>
-        </div>
-      </div>
-
       <div class="row space-above" v-if="packages.length > 0 && !updatesChecked">
         <div class="col-md-12">
           <button class="btn btn-primary" @click="checkAllForUpdates">Check versions</button>
