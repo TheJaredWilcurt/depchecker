@@ -3,8 +3,26 @@ console.clear();
 Vue.config.devtools = true;
 // nw.Window.get().showDevTools();
 
+Vue.use(Vuex);
+
+const store = new Vuex.Store({
+  plugins: [
+    createPersistedState()
+  ],
+  state: {
+    manifestHistory: []
+  },
+  mutations: {
+    addToHistory: function (state, file) {
+      state.manifestHistory.unshift(file);
+      state.manifestHistory = Array.from(new Set(state.manifestHistory));
+    }
+  }
+});
+
 const app = new Vue({
   el: '#app',
+  store,
   data: {
     updatesChecked: false,
     packages: [],
@@ -35,6 +53,7 @@ const app = new Vue({
     loadCommonFile: function () {
       let commonFile = this.getCommonFileLocation();
       if (commonFile) {
+        this.$store.commit('addToHistory', commonFile);
         this.packagejson = String(window.nw.require('fs').readFileSync(commonFile));
         this.validatePackage();
       }
