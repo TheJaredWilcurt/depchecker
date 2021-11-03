@@ -22,9 +22,24 @@
       </h1>
       <p v-if="window.nw">
         Select your <code>package.json</code>:
-        <input type="file" @change="setCommonFileLocation" @input="setCommonFileLocation">
+        <input
+          type="file"
+          @change="setCommonFileLocation($event)"
+          @input="setCommonFileLocation($event)"
+        >
       </p>
-      <p>{{ getCommonFileLocation() }}</p>
+      <p>{{ currentFile }}</p>
+      <div>
+        <select
+          :value="currentFile"
+          @change="loadFromRecentHistory($event)"
+        >
+          <option
+            v-for="file in $store.state.recentHistory"
+            :key="file"
+          >{{ file }}</option>
+        </select>
+      </div>
 
       <div class="row space-above" v-if="packages.length > 0 && !updatesChecked">
         <div class="col-md-12">
@@ -117,7 +132,7 @@
         </tbody>
       </table>
 
-      <div v-if="getCommonFileLocation() && selectedFilteredPackages.length" class="row">
+      <div v-if="currentFile && selectedFilteredPackages.length" class="row">
         <div class="col-md-12">
           <button
             v-if="packages.length > 0"
@@ -126,7 +141,7 @@
           >
             Apply "latest" to:
           </button>
-          {{ getCommonFileLocation() }}
+          {{ currentFile }}
           <span
             :class="{ 'saved': saved }"
             class="text-success checkmark"

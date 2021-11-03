@@ -10,12 +10,17 @@ const store = new Vuex.Store({
     createPersistedState()
   ],
   state: {
-    manifestHistory: []
+    recentHistory: []
   },
   mutations: {
     addToHistory: function (state, file) {
-      state.manifestHistory.unshift(file);
-      state.manifestHistory = Array.from(new Set(state.manifestHistory));
+      state.recentHistory.unshift(file);
+      state.recentHistory = Array.from(new Set(state.recentHistory));
+    },
+    removeFromHistory: function (state, fileToRemove) {
+      state.recentHistory = state.recentHistory.filter(function (file) {
+        return file !== fileToRemove;
+      });
     }
   }
 });
@@ -38,31 +43,32 @@ const app = new Vue({
     reset: function () {
       this.updatesChecked = false;
     },
-    getCommonFileLocation: function () {
-      return (
-        window.nw &&
-        window.localStorage &&
-        window.localStorage.commonFile
-      );
-    },
     setCommonFileLocation: function (evt) {
       let file = evt.target.files[0].path;
-      window.localStorage.commonFile = file;
-      this.loadCommonFile();
+      this.loadCommonFile(file);
     },
-    loadCommonFile: function () {
-      let commonFile = this.getCommonFileLocation();
-      if (commonFile) {
-        this.$store.commit('addToHistory', commonFile);
-        this.packagejson = String(window.nw.require('fs').readFileSync(commonFile));
+    loadFromRecentHistory: function (evt) {
+      let file = evt.target.value;
+      this.loadCommonFile(file);
+    },
+    loadCommonFile: function (file) {
+      if (!file) {
+        return;
+      }
+
+      if (window.nw.require('fs').existsSync(file)) {
+        this.$store.commit('addToHistory', file);
+        this.packagejson = String(window.nw.require('fs').readFileSync(file));
         this.validatePackage();
+      } else {
+        this.$store.commit('removeFromHistory', file);
       }
 
       this.checkAllForUpdates();
     },
     applyToManifest: function () {
       let error = false;
-      let commonFile = this.getCommonFileLocation();
+      let commonFile = this.currentFile();
       let indentation = 2;
       let originalPackageJSON = '{}';
       let data = '';
@@ -275,6 +281,9 @@ const app = new Vue({
     }
   },
   computed: {
+    currentFile: function () {
+      return this.$store.state.recentHistory[0];
+    },
     filteredPackages: function () {
       let packages = [];
       this.packages.forEach((package) => {
