@@ -435,7 +435,57 @@ const app = new Vue({
       ].join('\n\n');
 
       return markdown.trim();
-    }
+    },
+    csv: function () {
+      let table = '';
+
+      if (this.packages.length) {
+        let header = [
+          'Status',
+          'Package',
+          'URL',
+          'Version',
+          'Type',
+          'Latest',
+          'Behind by',
+          'Breaking',
+        ];
+
+        let rows = [];
+
+        this.filteredPackages.forEach(function (package) {
+          let status = 'good';
+          if (package.broken) {
+            status = 'broken';
+          } else if (package.distance) {
+            status = 'behind';
+          }
+
+
+          let row = [
+            status,
+            package.name,
+            'https://www.npmjs.com/package/' + package.name,
+            package.version,
+            package.type,
+            package.latest,
+            package.distance,
+            package.broken
+          ].join(',');
+
+          rows.push(row);
+        });
+
+        if (rows.length) {
+          table = [
+            header.join(','),
+            rows.join('\n')
+          ].join('\n');
+        }
+      }
+
+      return table;
+    },
   },
   created: function () {
     this.loadCommonFile();
