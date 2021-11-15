@@ -454,11 +454,11 @@ const app = new Vue({
         let rows = [];
 
         this.filteredPackages.forEach(function (package) {
-          let status = 'good';
+          let status = 'Up-to-date';
           if (package.broken) {
-            status = 'broken';
+            status = 'Breaking';
           } else if (package.distance) {
-            status = 'behind';
+            status = 'Behind';
           }
 
 
