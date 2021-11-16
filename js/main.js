@@ -37,7 +37,9 @@ const app = new Vue({
     showBroke: true,
     showBehind: true,
     showSkipped: false,
-    saved: false
+    saved: false,
+    combineCsvUrl: false,
+    activeTab: 'Markdown'
   },
   methods: {
     reset: function () {
@@ -440,20 +442,24 @@ const app = new Vue({
       let table = '';
 
       if (this.packages.length) {
+        let url = 'URL';
+        if (this.combineCsvUrl) {
+          url = '';
+        }
         let header = [
           'Status',
           'Package',
-          'URL',
+          url,
           'Version',
           'Type',
           'Latest',
           'Behind by',
           'Breaking',
-        ];
+        ].filter(Boolean);
 
         let rows = [];
 
-        this.filteredPackages.forEach(function (package) {
+        this.filteredPackages.forEach((package) => {
           let status = 'Up-to-date';
           if (package.broken) {
             status = 'Breaking';
@@ -461,17 +467,28 @@ const app = new Vue({
             status = 'Behind';
           }
 
+          let packageName = package.name;
+          let packageUrl = 'https://www.npmjs.com/package/' + package.name;
+
+          if (this.combineCsvUrl) {
+            packageName = '"=HYPERLINK(""' + packageUrl + '"",""' + package.name + '"")"';
+            packageUrl = '=REMOVE';
+          }
 
           let row = [
             status,
-            package.name,
-            'https://www.npmjs.com/package/' + package.name,
+            packageName,
+            packageUrl,
             package.version,
             package.type,
             package.latest,
             package.distance,
             package.broken
-          ].join(',');
+          ];
+          row = row.filter(function (value) {
+            return value !== '=REMOVE';
+          });
+          row = row.join(',');
 
           rows.push(row);
         });
@@ -485,7 +502,7 @@ const app = new Vue({
       }
 
       return table;
-    },
+    }
   },
   created: function () {
     this.loadCommonFile();
