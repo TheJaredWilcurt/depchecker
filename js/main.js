@@ -70,7 +70,7 @@ const app = new Vue({
     },
     applyToManifest: function () {
       let error = false;
-      let commonFile = this.currentFile();
+      let commonFile = this.currentFile;
       let indentation = 2;
       let originalPackageJSON = '{}';
       let data = '';
@@ -505,6 +505,7 @@ const app = new Vue({
     }
   },
   created: function () {
-    this.loadCommonFile();
+    const lastOpenedFiled = this.$store.state.recentHistory[0];
+    this.loadCommonFile(lastOpenedFiled);
   }
 });
