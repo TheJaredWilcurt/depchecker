@@ -25,5 +25,9 @@
   },
   "author": "The Jared Wilcurt",
   "license": "MIT",
-  "repository": "https://github.com/TheJaredWilcurt/depchecker"
+  "repository": "https://github.com/TheJaredWilcurt/depchecker",
+  "volta": {
+    "node": "18.14.0",
+    "npm": "9.3.1"
+  }
 }
